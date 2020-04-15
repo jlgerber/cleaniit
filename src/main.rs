@@ -127,7 +127,7 @@ async fn main() -> Result<(), MainError> {
                         .arg("-f")
                         .arg("-e")
                         .spawn()
-                        .expect("ls command failed to start")
+                        .expect("unable to pkill")
                         .await?;
                 }
                 cnt += 1;
