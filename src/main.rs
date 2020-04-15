@@ -80,7 +80,7 @@ fn age(start: DateTime<Local>) -> Duration {
 async fn find_iit(client: &Client) -> Result<Vec<FindIitRow>, Box<dyn std::error::Error>> {
     let mut results = Vec::new();
     let query_str =
-        "SELECT datid,pid,query,backend_start,xact_start,query_start,state_change from pg_stat_activity where state = 'idle in transaction' order by state_change";
+        "SELECT datid,pid,query,backend_start,xact_start,query_start,state_change from pg_stat_activity where state = 'idle in transaction' and xact_start is not null order by state_change";
     for row in client.query(query_str, &[]).await? {
         let datid: u32 = row.get(0);
         let pid: i32 = row.get(1);
@@ -156,12 +156,14 @@ async fn main() -> Result<(), MainError> {
                     }
                     if !dry_run {
                         Command::new("sudo")
-                            .arg("/usr/bin/pkill")
-                            .arg("-f")
-                            .arg("'idle in transaction'")
-                            .arg("-o")
-                            .arg("-f")
-                            .arg("-e")
+                            // .arg("/usr/bin/pkill")
+                            // .arg("-f")
+                            // .arg("'idle in transaction'")
+                            // .arg("-o")
+                            // .arg("-f")
+                            // .arg("-e")
+                            .arg("/usr/bin/kill")
+                            .arg(&format!("{}", row.pid))
                             .spawn()
                             .expect("unable to pkill")
                             .await?;
