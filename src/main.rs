@@ -85,6 +85,7 @@ async fn main() -> Result<(), MainError> {
     let opt = Opt::from_args();
     let Opt {
         loglevel: maybe_level,
+        debug,
         kill,
         min_age,
         max_killed,
@@ -118,12 +119,18 @@ async fn main() -> Result<(), MainError> {
     let mut cnt = 0;
     for row in rows {
         let age = age(row.state_change);
-        if age.num_minutes() > min_age && cnt < max_cnt {
-            log::info!("{:#?}", row);
-            log::info!("Age {}", age.num_minutes());
+        if age.num_minutes() >= min_age && cnt < max_cnt {
+            if debug {
+                log::info!("{:#?}\n\tAge: {} Minutes", row, age.num_minutes());
+            } else {
+                log::info!("pid: {} Age: {} minutes old", row.pid, age.num_minutes());
+            }
+            //log::info!("Age: {} minutes old", age.num_minutes());
             if kill {
                 if kcnt < max_k {
-                    log::info!("killing {}", row.pid);
+                    if debug {
+                        log::info!("killing {}", row.pid);
+                    }
                     if !dry_run {
                         Command::new("sudo")
                             .arg("/usr/bin/pkill")
