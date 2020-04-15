@@ -151,9 +151,7 @@ async fn main() -> Result<(), MainError> {
             //log::info!("Age: {} minutes old", age.num_minutes());
             if kill {
                 if kcnt < max_k {
-                    if verbose {
-                        log::info!("killing {}", row.pid);
-                    }
+                    log::info!("killing {}", row.pid);
                     if !dry_run {
                         Command::new("sudo")
                             // .arg("/usr/bin/pkill")
