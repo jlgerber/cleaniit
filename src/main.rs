@@ -22,19 +22,22 @@ struct Opt {
     // short and long flags (-d, --debug) will be deduced from the field's name
     #[structopt(short, long)]
     debug: bool,
-    /// Kill idle in transaction process
+    /// Kill idle in transaction process. If -k is not supplied
+    /// the command simply prints out information.
     #[structopt(short = "k", long = "kill")]
     kill: bool,
     /// Minimum age in minutes of process since last change
     #[structopt(short = "a", long = "min-age")]
     min_age: Option<i64>,
-    /// max number of processes killed
+    /// max number of processes killed.
     #[structopt(short = "m", long = "max")]
     max_killed: Option<i64>,
-    /// max number of processes displayed
+    /// max number of processes displayed. If this number is less
+    /// than max, then the maximum number of killed processes will
+    /// be limied by this value. ( ie max killed = min(max, max-cnt))
     #[structopt(short = "c", long = "max-cnt")]
     max_cnt: Option<i64>,
-    ///Dry run
+    ///Dry run - do not perform any deletions
     #[structopt(short = "n", long = "dry-run")]
     dry_run: bool,
 }
