@@ -136,6 +136,7 @@ async fn main() -> Result<(), MainError> {
             }
         }
     }
+    log::info!("Result Count: {}", cnt);
 
     Ok(())
 }
