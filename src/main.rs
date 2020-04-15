@@ -14,22 +14,24 @@ use tokio_postgres::NoTls;
 /// kill them
 ///
 /// # Examples
+///
 /// 1. set min age to 120 seconds
-/// ```
+///
 /// cleaniit -a 120 -d
-/// ```
+///
 /// 2. show the first 10 record
-/// ```
+///
+///
 /// cleaniit -c 10
-/// ```
+///
 /// 3. kill 10 oldest processes
-/// ```
+///
 /// cleaniit -m 10 -k
-/// ```
+///
 /// 4. kill all processes 120 minutes or older
-/// ```
+///
 /// cleaniit -a 120 -k
-/// ```
+///
 #[derive(Debug, StructOpt)]
 #[structopt(name = "cleaniit", about = "clean up idle in transaction processes")]
 struct Opt {
