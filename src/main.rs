@@ -15,19 +15,19 @@ use tokio_postgres::NoTls;
 ///
 /// EXAMPLES:
 ///
-/// 1. set min age to 120 seconds
+/// 1. show records with a minimum age of 120 seconds (-v is verbose output)
 ///
-///     cleaniit -a 120 -d
+///     cleaniit -a 120 -v
 ///
 /// 2. show the first 10 records
 ///
 ///     cleaniit -c 10
 ///
-/// 3. kill 10 oldest processes
+/// 3. kill 10 oldest processes (note the -k. without it we are displaying 10 oldest)
 ///
 ///     cleaniit -m 10 -k
 ///
-/// 4. kill all processes 120 minutes or older
+/// 4. kill all processes 120 minutes or older (note the -k)
 ///
 ///     cleaniit -a 120 -k
 ///
@@ -36,13 +36,12 @@ use tokio_postgres::NoTls;
 struct Opt {
     /// Set the log level. This may target one or more
     /// specific modules or be general.
-    /// (levels: trace, debug, info, warn, error)
+    /// (levels: trace, verbose, info, warn, error)
     #[structopt(long)]
     pub loglevel: Option<String>,
-    /// Activate debug mode
-    // short and long flags (-d, --debug) will be deduced from the field's name
+    /// Activate verbose mode
     #[structopt(short, long)]
-    debug: bool,
+    verbose: bool,
     /// Kill idle in transaction process. If -k is not supplied
     /// the command simply prints out information.
     #[structopt(short = "k", long = "kill")]
@@ -109,7 +108,7 @@ async fn main() -> Result<(), MainError> {
     let opt = Opt::from_args();
     let Opt {
         loglevel: maybe_level,
-        debug,
+        verbose,
         kill,
         min_age,
         max_killed,
@@ -144,7 +143,7 @@ async fn main() -> Result<(), MainError> {
     for row in rows {
         let age = age(row.state_change);
         if age.num_minutes() >= min_age && cnt < max_cnt {
-            if debug {
+            if verbose {
                 log::info!("{:#?}\n\tAge: {} Minutes", row, age.num_minutes());
             } else {
                 log::info!("pid: {} Age: {} minutes old", row.pid, age.num_minutes());
@@ -152,7 +151,7 @@ async fn main() -> Result<(), MainError> {
             //log::info!("Age: {} minutes old", age.num_minutes());
             if kill {
                 if kcnt < max_k {
-                    if debug {
+                    if verbose {
                         log::info!("killing {}", row.pid);
                     }
                     if !dry_run {
