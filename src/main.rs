@@ -11,7 +11,7 @@ use tokio_postgres::Client;
 use tokio_postgres::NoTls;
 
 /// Query the organic database for 'idle in transaction' pids, and optionally
-/// kill them
+/// kill them. THIS COMMAND MUST BE RUN FROM THE ORGANIC SERVER (pd-organic-db-01)
 ///
 /// EXAMPLES:
 ///
