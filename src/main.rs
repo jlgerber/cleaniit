@@ -13,13 +13,13 @@ use tokio_postgres::NoTls;
 /// Query the organic database for 'idle in transaction' pids, and optionally
 /// kill them
 ///
-/// # Examples
+/// EXAMPLES:
 ///
 /// 1. set min age to 120 seconds
 ///
 ///     cleaniit -a 120 -d
 ///
-/// 2. show the first 10 record
+/// 2. show the first 10 records
 ///
 ///     cleaniit -c 10
 ///
