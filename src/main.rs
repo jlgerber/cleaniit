@@ -38,7 +38,7 @@ struct Opt {
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct FindIitRow {
-    pub datid: i64,
+    pub datid: u32,
     pub pid: i64,
     pub query: String,
     pub backend_start: DateTime<Local>,
@@ -56,7 +56,7 @@ async fn find_iit(client: &Client) -> Result<Vec<FindIitRow>, Box<dyn std::error
     let query_str =
         "SELECT datid,pid,query,backend_start,xact_start,query_start,state_change from pg_stat_activity where state = 'idle in transaction' order by state_change";
     for row in client.query(query_str, &[]).await? {
-        let datid: i64 = row.get(0);
+        let datid: u32 = row.get(0);
         let pid: i64 = row.get(1);
         let query: &str = row.get(2);
         let backend_start: DateTime<Local> = row.get(3);
