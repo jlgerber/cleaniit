@@ -112,25 +112,27 @@ async fn main() -> Result<(), MainError> {
     let max_k = max_killed.unwrap_or(rows.len() as i64);
     let mut cnt = 0;
     for row in rows {
-        log::info!("{:#?}", row);
         let age = age(row.state_change);
-        log::info!("Age {}", age);
-        if kill && age.num_minutes() > min_age {
-            if cnt < max_k {
-                log::info!("killing {}", row.pid);
-                if !dry_run {
-                    Command::new("sudo")
-                        .arg("/usr/bin/pkill")
-                        .arg("-f")
-                        .arg("'idle in transaction'")
-                        .arg("-o")
-                        .arg("-f")
-                        .arg("-e")
-                        .spawn()
-                        .expect("unable to pkill")
-                        .await?;
+        if age.num_minutes() > min_age {
+            log::info!("{:#?}", row);
+            log::info!("Age {}", age.num_minutes());
+            if kill {
+                if cnt < max_k {
+                    log::info!("killing {}", row.pid);
+                    if !dry_run {
+                        Command::new("sudo")
+                            .arg("/usr/bin/pkill")
+                            .arg("-f")
+                            .arg("'idle in transaction'")
+                            .arg("-o")
+                            .arg("-f")
+                            .arg("-e")
+                            .spawn()
+                            .expect("unable to pkill")
+                            .await?;
+                    }
+                    cnt += 1;
                 }
-                cnt += 1;
             }
         }
     }
