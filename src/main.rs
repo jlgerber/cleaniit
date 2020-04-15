@@ -31,6 +31,9 @@ struct Opt {
     /// max number of processes killed
     #[structopt(short = "m", long = "max")]
     max_killed: Option<i64>,
+    /// max number of processes displayed
+    #[structopt(short = "c", long = "max-cnt")]
+    max_cnt: Option<i64>,
     ///Dry run
     #[structopt(short = "n", long = "dry-run")]
     dry_run: bool,
@@ -86,6 +89,7 @@ async fn main() -> Result<(), MainError> {
         min_age,
         max_killed,
         dry_run,
+        max_cnt,
         ..
     } = opt;
     if let Some(ref level) = maybe_level {
@@ -94,7 +98,7 @@ async fn main() -> Result<(), MainError> {
 
     // set default min age of two hours
     let min_age = min_age.unwrap_or(120);
-
+    let max_cnt = max_cnt.unwrap_or(10000000000);
     env_logger::from_env(Env::default().default_filter_or("info")).init();
 
     let (client, connection) = tokio_postgres::connect(
@@ -110,14 +114,15 @@ async fn main() -> Result<(), MainError> {
     // make the call
     let rows = find_iit(&client).await?;
     let max_k = max_killed.unwrap_or(rows.len() as i64);
+    let mut kcnt = 0;
     let mut cnt = 0;
     for row in rows {
         let age = age(row.state_change);
-        if age.num_minutes() > min_age {
+        if age.num_minutes() > min_age && cnt < max_cnt {
             log::info!("{:#?}", row);
             log::info!("Age {}", age.num_minutes());
             if kill {
-                if cnt < max_k {
+                if kcnt < max_k {
                     log::info!("killing {}", row.pid);
                     if !dry_run {
                         Command::new("sudo")
@@ -131,12 +136,13 @@ async fn main() -> Result<(), MainError> {
                             .expect("unable to pkill")
                             .await?;
                     }
-                    cnt += 1;
+                    kcnt += 1;
                 }
             }
+            cnt += 1;
         }
     }
-    log::info!("Result Count: {}", cnt);
+    log::info!("Result Count: {}, killed: {}", cnt, kcnt);
 
     Ok(())
 }
